@@ -36,7 +36,7 @@ reverse <- latlong %>%
   reverse_geocode(lat = latitude, 
                   long = longitude, method = 'arcgis',
                   address = address_found, 
-                  full_results = TRUE)
+                  full_results = TRUE) #WARNING: This step may take a while due to the number of rows and the nature of reverse geocoding.
 
 reverse <- reverse %>%
   select(latitude, longitude, address_found, City, Subregion, Region)
@@ -80,5 +80,13 @@ full_county_linked <- full_county_gdp_filtered %>%
   mutate(State_Full_Name = state.name[match(State, state.abb)]) %>%
   mutate(State_Full_Name = ifelse(State == "DC", "District of Columbia", State_Full_Name))
 
+# Add GDP Growth
+full_county_growth <- full_county_linked %>%
+  mutate(Real_GDP = as.numeric(Real_GDP)) %>%
+  group_by(County) %>%
+  arrange(Year) %>%
+  mutate(GDP_Growth = (Real_GDP - lag(Real_GDP)) / lag(Real_GDP) * 100) %>%
+  ungroup()
+
 # Save the cleaned and linked county GDP data to a new CSV file
-write_csv(full_county_linked, "Data/cleaned_county_gdp_data.csv")
+write_csv(full_county_growth, "Data/cleaned_county_gdp_data.csv")
