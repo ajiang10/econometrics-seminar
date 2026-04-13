@@ -83,9 +83,9 @@ full_county_linked <- full_county_gdp_filtered %>%
 # Add GDP Growth
 full_county_growth <- full_county_linked %>%
   mutate(Real_GDP = as.numeric(Real_GDP)) %>%
-  group_by(County) %>%
+  group_by(GeoFIPS) %>%
   arrange(Year) %>%
-  mutate(GDP_Growth = (Real_GDP - lag(Real_GDP)) / lag(Real_GDP) * 100) %>%
+  mutate(GDP_Growth = ((Real_GDP - lag(Real_GDP)) / lag(Real_GDP)) * 100) %>%
   ungroup()
 
 # Save the cleaned and linked county GDP data to a new CSV file
