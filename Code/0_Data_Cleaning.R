@@ -55,7 +55,6 @@ points_with_county <- st_join(power_plants_points_sf, us_counties, join = st_int
 
 # Combine the reverse geocoded data with the original filtered data and perform necessary cleaning and transformationsss
 final_power_plant_data <- points_with_county %>%
-  st_drop_geometry() %>%
   filter(!STATEFP %in% c("02", "15", "66", "72")) %>% #Drop AK, HI, and territories
   select(name, country_long, capacity_mw, primary_fuel, commissioning_year, GEOID) %>%
   rename(GeoFIPS = GEOID) %>%
