@@ -21,7 +21,7 @@ geofips <- read_delim("Data/county_adjacency2010.txt", col_names = F) %>%
 
 # Save geofips adjacency data for later use
 write_csv(geofips, "Data/geofips_adjacency.csv")
-save(geofips, file = "Data/geofips_adjacency.RData")
+saveRDS(geofips, file = "Data/geofips_adjacency.rds")
 
 # US County Polygons
 us_counties <- counties(class = "sf", year = 2019)
@@ -42,7 +42,7 @@ geofips_linking <- geofips %>%
 
 # Save geofips linking data for later use
 write_csv(geofips_linking, "Data/geofips_linking.csv")
-save(geofips_linking, file = "Data/geofips_linking.RData")
+saveRDS(geofips_linking, file = "Data/geofips_linking.rds")
 
 # Filter data for relevant information
 global_power_plant_data_filtered <- global_power_plant_data %>%
@@ -65,7 +65,7 @@ final_power_plant_data <- points_with_county %>%
 
 # Save the cleaned data to a new CSV file and RData file
 write_csv(final_power_plant_data, "Data/cleaned_power_plant_data.csv")
-save(final_power_plant_data, file = "Data/cleaned_power_plant_data.RData")
+saveRDS(final_power_plant_data, file = "Data/cleaned_power_plant_data.rds")
 
 # Load the full county GDP data
 full_county_gdp_data <- read_csv("Data/county_real_gdp_2001_2024.csv")
@@ -899,5 +899,5 @@ final_county_panel <- gdp_demo_nat %>%
 
 # Save the final data to a new CSV file and RData file
 write_csv(final_county_panel, "Data/cleaned_county_panel.csv")
-save(final_county_panel, file = "Data/cleaned_county_panel.RData")
+saveRDS(final_county_panel, file = "Data/cleaned_county_panel.rds")
 
