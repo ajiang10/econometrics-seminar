@@ -4,6 +4,7 @@ library(tidycensus)
 library(sf)
 library(tigris)
 library(readxl)
+library(units)
 
 # Set Census API Key (will need to obtain your own key and insert it here)
 # census_api_key("API_KEY_HERE", install = TRUE)
@@ -18,9 +19,16 @@ geofips <- read_delim("Data/county_adjacency2010.txt", col_names = F) %>%
   mutate(Adjacent_County_Name = replace(Adjacent_County_Name, Adjacent_County_GEOID == "35013", "Dona Ana County, NM")) %>%
   fill(County_Name, County_GEOID, .direction = "down")
 
+# Save geofips adjacency data for later use
+write_csv(geofips, "Data/geofips_adjacency.csv")
+save(geofips, file = "Data/geofips_adjacency.RData")
+
 # US County Polygons
 us_counties <- counties(class = "sf", year = 2019)
-us_counties <- st_transform(us_counties, crs = 4326)
+us_counties <- st_transform(us_counties, crs = 4326) # For Intersecting with power plant coordinates
+us_countiesEPSG <- st_transform(us_counties, crs = 5070) # Albers Equal Area for accurate area calculations
+us_counties$areas <- st_area(us_countiesEPSG) # Calculate area in square meters
+us_counties$area_sqmi <- set_units(us_counties$areas, mi^2)
 
 # Turn County Name into County and State
 geofips_linking <- geofips %>%
@@ -31,6 +39,10 @@ geofips_linking <- geofips %>%
   mutate(State_Full_Name = state.name[match(State, state.abb)]) %>%
   mutate(State_Full_Name = ifelse(State == "DC", "District of Columbia", State_Full_Name)) %>%
   drop_na()
+
+# Save geofips linking data for later use
+write_csv(geofips_linking, "Data/geofips_linking.csv")
+save(geofips_linking, file = "Data/geofips_linking.RData")
 
 # Filter data for relevant information
 global_power_plant_data_filtered <- global_power_plant_data %>%
@@ -98,22 +110,25 @@ full_population_filtered <- full_county_population_data %>%
     !(Year %in% census_years) & `Count or Estimate` == "Estimate" ~ 1L,
     TRUE                                                       ~ 2L
   )) %>%
-  group_by(Statefips, Countyfips, Year) %>%   # change grouping cols if different
+  group_by(Statefips, Countyfips, Year) %>%  
   slice_min(order_by = preferred, with_ties = FALSE) %>% 
   ungroup() %>% 
   select(-preferred) %>%
   select(!c("Count or Estimate", "State or County Release", "Description"))
 
-# Merge population data with the linked county GDP data
+# Merge population data and county areas with the linked county GDP data 
 full_county_gdp_population_linked <- full_county_linked %>%
   left_join(full_population_filtered, by = c("GeoFIPS", "Year")) %>%
+  left_join(us_counties %>% st_drop_geometry() %>% select(GEOID, area_sqmi), by = c("GeoFIPS" = "GEOID")) %>%
   fill(Statefips, Countyfips, Population, .direction = "down") # Fill in population data for years without estimates using the most recent available data for that county
 
 # Calculate GDP Per Capita and Log Values
 full_county_gdp_population_linked <- full_county_gdp_population_linked %>%
   mutate(GDP_Per_Capita = Real_GDP / Population,
          lnGDP = log(Real_GDP),
-         lnGDP_Per_Capita = log(GDP_Per_Capita))
+         lnGDP_Per_Capita = log(GDP_Per_Capita),
+         area_sqmi = as.numeric(area_sqmi)) %>% # Ensure area is numeric
+  mutate(pop_density = Population / area_sqmi) # Calculate population density
 
 # Clean and reshape personal income data
 full_personal_income_filtered <- full_county_personal_income_data %>%
@@ -226,7 +241,11 @@ census2000_merged <- census2000totalandrace_reshaped %>%
   rename(GeoFIPS = GEOID)
 census2000_merged <- census2000_merged %>%
   filter(!GeoFIPS %in% census2000_merged$GeoFIPS[grepl("^02|^15|^72", census2000_merged$GeoFIPS)]) # Exclude Alaska, Hawaii, and Puerto Rico
-  
+
+rm(list = c("census2000totalandrace", "census2000educationandpoverty", "census2000agefarmeremployment",
+            "census2000totalandrace_reshaped", "census2000educationandpoverty_reshaped", "census2000agefarmeremployment_reshaped")) # Clean up intermediate objects to save memory
+
+# Calculate totals
 census2000_with_totals <- census2000_merged %>%
          mutate(totalassoc = maleassoc + femaleassoc,
          totalbach = malebach + femalebach,
@@ -591,6 +610,9 @@ acs2020_2024_final <- acs2020_2024_with_totals %>%
   select(GeoFIPS, pct_white, pct_black, pct_native, pct_asian, pct_hawaiian, pct_other, pct_twoplus,
          pct_poverty, pct_assoc, pct_bach, pct_masters, pct_farmer, pct_elderly, pct_under18, pct_maleemploy, pct_femaleemploy, Year)
 
+rm(list = c("acs2005_2009", "acs2010_2014", "acs2015_2019", "acs2020_2024",
+            "acs2005_2009_reshaped", "acs2010_2014_reshaped", "acs2015_2019_reshaped", "acs2020_2024_reshaped")) # Clean up intermediate objects to save memory
+
 # Combina All ACS datasets with census
 acs_combined <- bind_rows(acs2005_2009_final, acs2010_2014_final, acs2015_2019_final, acs2020_2024_final)
 
@@ -600,10 +622,280 @@ acs_combined <- acs_combined %>%
 census_controls <- bind_rows(acs_combined, census2000_final)
 
 # Join the census controls with the main county-level panel data
-final_county_panel <- full_county_gdp_population_income_linked %>%
+gdp_demo_controls <- full_county_gdp_population_income_linked %>%
   left_join(census_controls, by = c("GeoFIPS", "Year")) %>%
   fill(pct_white, pct_black, pct_native, pct_asian, pct_hawaiian, pct_other, pct_twoplus,
        pct_poverty, pct_assoc, pct_bach, pct_masters, pct_farmer, pct_elderly, pct_under18, pct_maleemploy, pct_femaleemploy, .direction = "down") # Fill in control variables for years without ACS data using the most recent available data for that county
+
+# Load Natural Amenities data and merge with the main dataset
+natural_amenities_data <- read_xls("Data/natamenf.xls", skip = 104) %>%
+  filter(!STATE %in% c("AK", "HI")) %>% # Exclude Alaska and Hawaii
+  select(GeoFIPS = `FIPS Code`, natamen = `Scale`)
+
+gdp_demo_nat <- gdp_demo_controls %>%
+  left_join(natural_amenities_data, by = "GeoFIPS")
+
+# Get Urban Areas data to calculate county distance to nearest UA
+county_centroids <- us_counties %>%
+  filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78")) %>% # Exclude Alaska, Hawaii, and territories
+  st_transform(crs = 5070) %>%
+  st_centroid()
+
+ua2000 <- get_decennial(geography = "urban area", 
+                      variables = c(totalpop = "P001001"), 
+                      year = 2000, 
+                      sumfile = "sf1",
+                      geometry = FALSE) %>%
+  rename(GeoFIPS = GEOID) %>%
+  pivot_wider(names_from = variable, values_from = value) %>%
+  select(GeoFIPS, totalpop, NAME)
+
+ua2010 <- get_decennial(geography = "urban area", 
+                      variables = c(totalpop = "P001001"), 
+                      year = 2010, 
+                      sumfile = "sf1",
+                      geometry = FALSE) %>%
+  rename(GeoFIPS = GEOID) %>%
+  pivot_wider(names_from = variable, values_from = value) %>%
+  select(GeoFIPS, totalpop, NAME)
+
+ua2020 <- get_decennial(geography = "urban area", 
+                      variables = c(totalpop = "P1_001N"), 
+                      year = 2020, 
+                      sumfile = "dhc",
+                      geometry = FALSE) %>%
+  rename(GeoFIPS = GEOID) %>%
+  pivot_wider(names_from = variable, values_from = value) %>%
+  select(GeoFIPS, totalpop, NAME)
+
+uashapes2000 <- read_sf("Data/nhgis0001_shapefile_tl2000_us_urb_area_2000/US_urb_area_2000.shp") %>% # Shapefile for 2000 urban areas from NHGIS, unavailable via Tigris
+  rename(GeoFIPS = UACODE) %>%
+  st_transform(crs = 5070) %>%
+  st_centroid()
+  
+uashapes2012 <- urban_areas(year = 2012) %>%
+  rename(GeoFIPS = GEOID10) %>%
+  st_transform(crs = 5070) %>%
+  st_centroid()
+
+uashapes2020 <- urban_areas(year = 2020) %>%
+  rename(GeoFIPS = GEOID10) %>%
+  st_transform(crs = 5070) %>%
+  st_centroid()
+
+ua2000_25k <- ua2000 %>%
+  filter(totalpop >= 25000 & totalpop < 100000) %>%
+  mutate(urban_area_category = "25k-100k") %>%
+  left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2000_100k <- ua2000 %>%
+  filter(totalpop >= 100000 & totalpop < 250000) %>%
+  mutate(urban_area_category = "100k-250k") %>%
+  left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2000_250k <- ua2000 %>%
+  filter(totalpop >= 250000 & totalpop < 500000) %>%
+  mutate(urban_area_category = "250k-500k") %>%
+  left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2000_500k <- ua2000 %>%
+  filter(totalpop >= 500000 & totalpop < 1000000) %>%
+  mutate(urban_area_category = "500k-1mil") %>%
+  left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>% 
+  st_as_sf()
+ua2000_1mil <- ua2000 %>%
+  filter(totalpop >= 1000000) %>%
+  mutate(urban_area_category = "1mil+") %>%
+  left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+
+nearest25kidx2000 <- st_nearest_feature(county_centroids, ua2000_25k)
+nearest100kidx2000 <- st_nearest_feature(county_centroids, ua2000_100k)
+nearest250kidx2000 <- st_nearest_feature(county_centroids, ua2000_250k)
+nearest500kidx2000 <- st_nearest_feature(county_centroids, ua2000_500k)
+nearest1milidx2000 <- st_nearest_feature(county_centroids, ua2000_1mil)
+
+us_counties2000 <- us_counties %>%
+  filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78"))
+
+us_counties2000$dist_to_urban_25k <- st_distance(
+  county_centroids, 
+  ua2000_25k[nearest25kidx2000, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2000$dist_to_urban_100k <- st_distance(
+  county_centroids, 
+  ua2000_100k[nearest100kidx2000, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2000$dist_to_urban_250k <- st_distance(
+  county_centroids, 
+  ua2000_250k[nearest250kidx2000, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2000$dist_to_urban_500k <- st_distance(
+  county_centroids, 
+  ua2000_500k[nearest500kidx2000, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2000$dist_to_urban_1mil <- st_distance(
+  county_centroids, 
+  ua2000_1mil[nearest1milidx2000, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+
+us_counties2000$Year <- 2002
+
+ua2010_25k <- ua2010 %>%
+  filter(totalpop >= 25000 & totalpop < 100000) %>%
+  mutate(urban_area_category = "25k-100k") %>%
+  left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2010_100k <- ua2010 %>%
+  filter(totalpop >= 100000 & totalpop < 250000) %>%
+  mutate(urban_area_category = "100k-250k") %>%
+  left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2010_250k <- ua2010 %>%
+  filter(totalpop >= 250000 & totalpop < 500000) %>%
+  mutate(urban_area_category = "250k-500k") %>%
+  left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2010_500k <- ua2010 %>%
+  filter(totalpop >= 500000 & totalpop < 1000000) %>%
+  mutate(urban_area_category = "500k-1mil") %>%
+  left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>% 
+  st_as_sf()
+ua2010_1mil <- ua2010 %>%
+  filter(totalpop >= 1000000) %>%
+  mutate(urban_area_category = "1mil+") %>%
+  left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+
+nearest25kidx2010 <- st_nearest_feature(county_centroids, ua2010_25k)
+nearest100kidx2010 <- st_nearest_feature(county_centroids, ua2010_100k)
+nearest250kidx2010 <- st_nearest_feature(county_centroids, ua2010_250k)
+nearest500kidx2010 <- st_nearest_feature(county_centroids, ua2010_500k)
+nearest1milidx2010 <- st_nearest_feature(county_centroids, ua2010_1mil)
+
+us_counties2010 <- us_counties %>%
+  filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78"))
+
+us_counties2010$dist_to_urban_25k <- st_distance(
+  county_centroids, 
+  ua2010_25k[nearest25kidx2010, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2010$dist_to_urban_100k <- st_distance(
+  county_centroids, 
+  ua2010_100k[nearest100kidx2010, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2010$dist_to_urban_250k <- st_distance(
+  county_centroids, 
+  ua2010_250k[nearest250kidx2010, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2010$dist_to_urban_500k <- st_distance(
+  county_centroids, 
+  ua2010_500k[nearest500kidx2010, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2010$dist_to_urban_1mil <- st_distance(
+  county_centroids, 
+  ua2010_1mil[nearest1milidx2010, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+
+us_counties2010$Year <- 2010
+
+ua2020_25k <- ua2020 %>%
+  filter(totalpop >= 25000 & totalpop < 100000) %>%
+  mutate(urban_area_category = "25k-100k") %>%
+  left_join(uashapes2020 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2020_100k <- ua2020 %>%
+  filter(totalpop >= 100000 & totalpop < 250000) %>%
+  mutate(urban_area_category = "100k-250k") %>%
+  left_join(uashapes2020 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2020_250k <- ua2020 %>%
+  filter(totalpop >= 250000 & totalpop < 500000) %>%
+  mutate(urban_area_category = "250k-500k") %>%
+  left_join(uashapes2020 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+ua2020_500k <- ua2020 %>%
+  filter(totalpop >= 500000 & totalpop < 1000000) %>%
+  mutate(urban_area_category = "500k-1mil") %>%
+  left_join(uashapes2020 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>% 
+  st_as_sf()
+ua2020_1mil <- ua2020 %>%
+  filter(totalpop >= 1000000) %>%
+  mutate(urban_area_category = "1mil+") %>%
+  left_join(uashapes2020 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
+  st_as_sf()
+
+nearest25kidx2020 <- st_nearest_feature(county_centroids, ua2020_25k)
+nearest100kidx2020 <- st_nearest_feature(county_centroids, ua2020_100k)
+nearest250kidx2020 <- st_nearest_feature(county_centroids, ua2020_250k)
+nearest500kidx2020 <- st_nearest_feature(county_centroids, ua2020_500k)
+nearest1milidx2020 <- st_nearest_feature(county_centroids, ua2020_1mil)
+
+us_counties2020 <- us_counties %>%
+  filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78"))
+
+us_counties2020$dist_to_urban_25k <- st_distance(
+  county_centroids, 
+  ua2020_25k[nearest25kidx2020, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2020$dist_to_urban_100k <- st_distance(
+  county_centroids, 
+  ua2020_100k[nearest100kidx2020, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2020$dist_to_urban_250k <- st_distance(
+  county_centroids, 
+  ua2020_250k[nearest250kidx2020, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2020$dist_to_urban_500k <- st_distance(
+  county_centroids, 
+  ua2020_500k[nearest500kidx2020, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+us_counties2020$dist_to_urban_1mil <- st_distance(
+  county_centroids, 
+  ua2020_1mil[nearest1milidx2020, ], 
+  by_element = TRUE
+) %>%
+  set_units("mi")
+
+us_counties2020$Year <- 2020
+
+urban_distance_data <- bind_rows(us_counties2000, us_counties2010, us_counties2020) %>%
+  rename(GeoFIPS = GEOID) %>%
+  select(GeoFIPS, Year, dist_to_urban_25k, dist_to_urban_100k, dist_to_urban_250k, dist_to_urban_500k, dist_to_urban_1mil) %>%
+  st_drop_geometry() # Remove geometry to keep only distance data for merging
+
+# Create final panel dataset by merging the urban distance data with the main dataset
+final_county_panel <- gdp_demo_nat %>%
+  left_join(urban_distance_data, by = c("GeoFIPS", "Year")) %>%
+  fill(dist_to_urban_25k, dist_to_urban_100k, dist_to_urban_250k, dist_to_urban_500k, dist_to_urban_1mil, .direction = "down") # Fill in urban distance for years without data using the most recent available data for that county
 
 # Save the final data to a new CSV file and RData file
 write_csv(final_county_panel, "Data/cleaned_county_panel.csv")
