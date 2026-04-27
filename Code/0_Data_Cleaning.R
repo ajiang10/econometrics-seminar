@@ -87,6 +87,7 @@ full_county_gdp_filtered <- full_county_gdp_data %>%
   pivot_longer(cols = starts_with("20"), names_to = "Year", values_to = "Real_GDP") %>%
   select(GeoFIPS, GeoName, Year, Real_GDP) 
 
+# Join with geofips linking data to get County and State names, and perform necessary cleaning and transformations
 full_county_linked <- full_county_gdp_filtered %>%
   left_join(geofips_linking, by = c("GeoFIPS" = "County_GEOID")) %>%
   select(GeoFIPS, GeoName, Year, Real_GDP, County, State) %>%
@@ -108,7 +109,7 @@ full_population_filtered <- full_county_population_data %>%
     Year %in% census_years                                      ~ 2L,
     !(Year %in% census_years) & `Count or Estimate` == "Estimate" ~ 1L,
     TRUE                                                       ~ 2L
-  )) %>%
+  )) %>% # Prefer census when available, otherwise use estimates
   group_by(Statefips, Countyfips, Year) %>%  
   slice_min(order_by = preferred, with_ties = FALSE) %>% 
   ungroup() %>% 
@@ -261,6 +262,7 @@ census2000_with_totals <- census2000_merged %>%
   select(GeoFIPS, totalpop, whitepop, blackpop, nativepop, asianpop, hawaiianpop, otherpop, twopluspop,
          poverty, totalassoc, totalbach, totalmasters, farmerpop, totalelderly, totalunder18, maleemploy, fememploy)
 
+# Calculate percentages and select final variables
 census2000_final <- census2000_with_totals %>%
   mutate(pct_white = whitepop / totalpop,
          pct_black = blackpop / totalpop,
@@ -642,6 +644,7 @@ natural_amenities_data <- natural_amenities_data %>%
       )
   ) # Add a row for Broomfield County, CO with the average natural amenities score of the surrounding counties since it was formed after the natural amenities data was collected
 
+# Join the natural amenities data with the main dataset
 gdp_demo_nat <- gdp_demo_controls %>%
   left_join(natural_amenities_data, by = "GeoFIPS")
 
@@ -651,6 +654,7 @@ county_centroids <- us_counties %>%
   st_transform(crs = 5070) %>%
   st_centroid()
 
+# 2000 Census Urban Areas
 ua2000 <- get_decennial(geography = "urban area", 
                       variables = c(totalpop = "P001001"), 
                       year = 2000, 
@@ -660,6 +664,7 @@ ua2000 <- get_decennial(geography = "urban area",
   pivot_wider(names_from = variable, values_from = value) %>%
   select(GeoFIPS, totalpop, NAME)
 
+# 2010 Census Urban Areas
 ua2010 <- get_decennial(geography = "urban area", 
                       variables = c(totalpop = "P001001"), 
                       year = 2010, 
@@ -669,6 +674,7 @@ ua2010 <- get_decennial(geography = "urban area",
   pivot_wider(names_from = variable, values_from = value) %>%
   select(GeoFIPS, totalpop, NAME)
 
+# 2020 Census Urban Areas
 ua2020 <- get_decennial(geography = "urban area", 
                       variables = c(totalpop = "P1_001N"), 
                       year = 2020, 
@@ -678,11 +684,13 @@ ua2020 <- get_decennial(geography = "urban area",
   pivot_wider(names_from = variable, values_from = value) %>%
   select(GeoFIPS, totalpop, NAME)
 
-uashapes2000 <- read_sf("Data/nhgis0001_shapefile_tl2000_us_urb_area_2000/US_urb_area_2000.shp") %>% # Shapefile for 2000 urban areas from NHGIS, unavailable via Tigris
+# Shapefile for 2000 urban areas from NHGIS, unavailable via Tigris
+uashapes2000 <- read_sf("Data/nhgis0001_shapefile_tl2000_us_urb_area_2000/US_urb_area_2000.shp") %>% 
   rename(GeoFIPS = UACODE) %>%
   st_transform(crs = 5070) %>%
   st_centroid()
-  
+
+# Shapefile for 2010 and 2020 urban areas from Tigris (use 2012 shapefile for 2010 due to Tigris limitations, but shapes should be same as 2010)
 uashapes2012 <- urban_areas(year = 2012) %>%
   rename(GeoFIPS = GEOID10) %>%
   st_transform(crs = 5070) %>%
@@ -693,6 +701,7 @@ uashapes2020 <- urban_areas(year = 2020) %>%
   st_transform(crs = 5070) %>%
   st_centroid()
 
+# Urban Areas in 2000 by population size category
 ua2000_25k <- ua2000 %>%
   filter(totalpop >= 25000 & totalpop < 100000) %>%
   mutate(urban_area_category = "25k-100k") %>%
@@ -719,15 +728,18 @@ ua2000_1mil <- ua2000 %>%
   left_join(uashapes2000 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
   st_as_sf()
 
+# Index of nearest urban area in each population category for each county centroid in 2000
 nearest25kidx2000 <- st_nearest_feature(county_centroids, ua2000_25k)
 nearest100kidx2000 <- st_nearest_feature(county_centroids, ua2000_100k)
 nearest250kidx2000 <- st_nearest_feature(county_centroids, ua2000_250k)
 nearest500kidx2000 <- st_nearest_feature(county_centroids, ua2000_500k)
 nearest1milidx2000 <- st_nearest_feature(county_centroids, ua2000_1mil)
 
+# Get county-level dataset for 2000 to merge with distance to urban area data (us_counties from before)
 us_counties2000 <- us_counties %>%
   filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78"))
 
+# Calculate distance from each county centroid to nearest urban area in each population category in 2000 and convert to miles
 us_counties2000$dist_to_urban_25k <- st_distance(
   county_centroids, 
   ua2000_25k[nearest25kidx2000, ], 
@@ -759,8 +771,10 @@ us_counties2000$dist_to_urban_1mil <- st_distance(
 ) %>%
   set_units("mi")
 
+# Add year column for later merging with main dataset
 us_counties2000$Year <- 2002
 
+# Repeat the same process for 2010 and 2020 urban areas
 ua2010_25k <- ua2010 %>%
   filter(totalpop >= 25000 & totalpop < 100000) %>%
   mutate(urban_area_category = "25k-100k") %>%
@@ -787,15 +801,18 @@ ua2010_1mil <- ua2010 %>%
   left_join(uashapes2012 %>% select(GeoFIPS, geometry), by = "GeoFIPS") %>%
   st_as_sf()
 
+# Index
 nearest25kidx2010 <- st_nearest_feature(county_centroids, ua2010_25k)
 nearest100kidx2010 <- st_nearest_feature(county_centroids, ua2010_100k)
 nearest250kidx2010 <- st_nearest_feature(county_centroids, ua2010_250k)
 nearest500kidx2010 <- st_nearest_feature(county_centroids, ua2010_500k)
 nearest1milidx2010 <- st_nearest_feature(county_centroids, ua2010_1mil)
 
+# County-level data
 us_counties2010 <- us_counties %>%
   filter(!STATEFP %in% c("02", "15", "72", "60", "69", "78"))
 
+# Distances
 us_counties2010$dist_to_urban_25k <- st_distance(
   county_centroids, 
   ua2010_25k[nearest25kidx2010, ], 
@@ -827,8 +844,10 @@ us_counties2010$dist_to_urban_1mil <- st_distance(
 ) %>%
   set_units("mi")
 
+# Year for merging
 us_counties2010$Year <- 2010
 
+# 2020
 ua2020_25k <- ua2020 %>%
   filter(totalpop >= 25000 & totalpop < 100000) %>%
   mutate(urban_area_category = "25k-100k") %>%
@@ -897,6 +916,7 @@ us_counties2020$dist_to_urban_1mil <- st_distance(
 
 us_counties2020$Year <- 2020
 
+# Bind together the distance to urban area data for all years and select relevant columns for merging with main dataset
 urban_distance_data <- bind_rows(us_counties2000, us_counties2010, us_counties2020) %>%
   rename(GeoFIPS = GEOID) %>%
   select(GeoFIPS, Year, dist_to_urban_25k, dist_to_urban_100k, dist_to_urban_250k, dist_to_urban_500k, dist_to_urban_1mil) %>%
