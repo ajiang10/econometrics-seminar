@@ -629,7 +629,18 @@ gdp_demo_controls <- full_county_gdp_population_income_linked %>%
 # Load Natural Amenities data and merge with the main dataset
 natural_amenities_data <- read_xls("Data/natamenf.xls", skip = 104) %>%
   filter(!STATE %in% c("AK", "HI")) %>% # Exclude Alaska and Hawaii
-  select(GeoFIPS = `FIPS Code`, natamen = `Scale`)
+  select(GeoFIPS = `FIPS Code`, natamen = `Scale`) %>%
+  mutate(GeoFIPS = replace(GeoFIPS, GeoFIPS == "12025", "12086")) # Correct FIPS code for Miami-Dade County, FL
+
+natural_amenities_data <- natural_amenities_data %>%
+  bind_rows(
+    natural_amenities_data %>%
+      filter(GeoFIPS %in% c("08001", "08013", "08059", "08123")) %>%
+      summarise(
+        GeoFIPS = "08014",
+        natamen = mean(natamen, na.rm = TRUE)
+      )
+  ) # Add a row for Broomfield County, CO with the average natural amenities score of the surrounding counties since it was formed after the natural amenities data was collected
 
 gdp_demo_nat <- gdp_demo_controls %>%
   left_join(natural_amenities_data, by = "GeoFIPS")
