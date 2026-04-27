@@ -68,6 +68,20 @@ master_panel <- county_panel %>%
 # Save master panel
 saveRDS(master_panel, "Data/master_panel.rds")
 
+# Change MW to 100s of MW for Later Bandwidth 
+master_panel <- master_panel %>%
+  mutate(
+    new_mw_wind = new_mw_wind / 100,
+    new_mw_solar = new_mw_solar / 100,
+    new_mw_gas   = new_mw_gas / 100,
+    cum_mw_history_wind = cum_mw_history_wind / 100,
+    cum_mw_history_solar = cum_mw_history_solar / 100,
+    cum_mw_history_gas = cum_mw_history_gas / 100,
+    lag_mw_wind = lag_mw_wind / 100,
+    lag_mw_solar = lag_mw_solar / 100,
+    lag_mw_gas = lag_mw_gas / 100
+  )
+
 # Stack Data for didcontDML function
 start_yr <- 2003
 end_yr <- 2020
