@@ -50,9 +50,17 @@ master_panel <- county_panel %>%
   group_by(GeoFIPS) %>%
   arrange(Year, .by_group = TRUE) %>%
   mutate(
-    cum_mw_history_wind  = cum_mw_wind_pre  + accumulate(lag(new_mw_wind,  default = 0), `+`),
-    cum_mw_history_solar = cum_mw_solar_pre + accumulate(lag(new_mw_solar, default = 0), `+`),
-    cum_mw_history_gas   = cum_mw_gas_pre   + accumulate(lag(new_mw_gas,   default = 0), `+`)
+    lag_mw_wind  = case_when(Year == 2002 ~ lag_mw_wind,
+                             Year > 2002 ~ dplyr::lag(new_mw_wind,  1)),
+    lag_mw_solar = case_when(Year == 2002 ~ lag_mw_solar,
+                             Year > 2002 ~ dplyr::lag(new_mw_solar,  1)),
+    lag_mw_gas   = case_when(Year == 2002 ~ lag_mw_gas,
+                             Year > 2002 ~ dplyr::lag(new_mw_gas, 1))                      
+  ) %>%
+  mutate(
+    cum_mw_history_wind  = cum_mw_wind_pre  + cumsum(lag_mw_wind),
+    cum_mw_history_solar = cum_mw_solar_pre + cumsum(lag_mw_solar),
+    cum_mw_history_gas   = cum_mw_gas_pre   + cumsum(lag_mw_gas)
   ) %>%
   ungroup() %>%
   select(-c(cum_mw_wind_pre, cum_mw_solar_pre, cum_mw_gas_pre)) # Drop pre-period cumulative columns as they are now incorporated into the history variables
