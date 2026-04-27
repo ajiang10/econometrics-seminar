@@ -28,7 +28,7 @@ wind_instantaneous_did50lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 50,           # Intensity: 50 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_instantaneous_did100lasso <- didcontDML(
@@ -39,7 +39,7 @@ wind_instantaneous_did100lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 100,           # Intensity: 100 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_instantaneous_did200lasso <- didcontDML(
@@ -50,7 +50,7 @@ wind_instantaneous_did200lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 200,           # Intensity: 200 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -79,7 +79,7 @@ solar_instantaneous_did50lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 50,           # Intensity: 50 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_instantaneous_did100lasso <- didcontDML(
@@ -90,7 +90,7 @@ solar_instantaneous_did100lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 100,           # Intensity: 100 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_instantaneous_did200lasso <- didcontDML(
@@ -101,7 +101,7 @@ solar_instantaneous_did200lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 200,           # Intensity: 200 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -131,7 +131,7 @@ gas_instantaneous_did50lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 50,           # Intensity: 50 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -143,7 +143,7 @@ gas_instantaneous_did100lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 100,           # Intensity: 100 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 gas_instantaneous_did200lasso <- didcontDML(
@@ -154,7 +154,7 @@ gas_instantaneous_did200lasso <- didcontDML(
   dcontrol = 0,             # Comparison: 0 MW added
   dtreat = 200,           # Intensity: 200 MW added
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
         
@@ -187,7 +187,7 @@ wind_one_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_one_year_post_did100lasso <- didcontDML(
@@ -200,7 +200,7 @@ wind_one_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_one_year_post_did200lasso <- didcontDML(
@@ -213,7 +213,7 @@ wind_one_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -244,7 +244,7 @@ solar_one_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_one_year_post_did100lasso <- didcontDML(
@@ -257,7 +257,7 @@ solar_one_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_one_year_post_did200lasso <- didcontDML(
@@ -270,7 +270,7 @@ solar_one_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -296,7 +296,7 @@ gas_one_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 gas_one_year_post_did100lasso <- didcontDML(
@@ -309,7 +309,7 @@ gas_one_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 gas_one_year_post_did200lasso <- didcontDML(
@@ -322,7 +322,7 @@ gas_one_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = one_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = one_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -349,7 +349,7 @@ wind_two_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_two_year_post_did100lasso <- didcontDML(
@@ -362,7 +362,7 @@ wind_two_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_two_year_post_did200lasso <- didcontDML(
@@ -375,7 +375,7 @@ wind_two_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -401,7 +401,7 @@ solar_two_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_two_year_post_did100lasso <- didcontDML(
@@ -414,7 +414,7 @@ solar_two_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_two_year_post_did200lasso <- didcontDML(
@@ -427,7 +427,7 @@ solar_two_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -453,7 +453,7 @@ gas_two_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 gas_two_year_post_did100lasso <- didcontDML(
@@ -466,7 +466,7 @@ gas_two_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 gas_two_year_post_did200lasso <- didcontDML(
@@ -479,7 +479,7 @@ gas_two_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = two_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = two_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -506,7 +506,7 @@ wind_three_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_three_year_post_did100lasso <- didcontDML(
@@ -519,7 +519,7 @@ wind_three_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 wind_three_year_post_did200lasso <- didcontDML(
@@ -532,7 +532,7 @@ wind_three_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -558,7 +558,7 @@ solar_three_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_three_year_post_did100lasso <- didcontDML(
@@ -571,7 +571,7 @@ solar_three_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 solar_three_year_post_did200lasso <- didcontDML(
@@ -584,7 +584,7 @@ solar_three_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
 
@@ -610,7 +610,7 @@ gas_three_year_post_did50lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the county level
   k = 3          
 )
 gas_three_year_post_did100lasso <- didcontDML(
@@ -623,7 +623,7 @@ gas_three_year_post_did100lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the county level
   k = 3          
 )
 gas_three_year_post_did200lasso <- didcontDML(
@@ -636,7 +636,7 @@ gas_three_year_post_did200lasso <- didcontDML(
   t0 = 0,
   t1 = 2,
   MLmethod = "lasso", # Or "randomforest" for non-linear history effects
-  cluster = three_year_post_stack$GeoFIPS, # Cluster standard errors at the county level
+  cluster = three_year_post_stack$Statefips, # Cluster standard errors at the county level
   k = 3          
 )
 
