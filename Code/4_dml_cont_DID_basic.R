@@ -5,13 +5,13 @@ library(causalweight)
 
 # Load stacked data
 instantaneous_stack <- readRDS("Data/instantaneous_stack.rds") %>%
-  mutate(Statefips = as.factor(Statefips))
+  mutate(Statefips = as.factor(Statefips), GeoFIPS = as.factor(GeoFIPS))
 one_year_post_stack <- readRDS("Data/one_year_post_stack.rds") %>%
-  mutate(Statefips = as.factor(Statefips))
+  mutate(Statefips = as.factor(Statefips), GeoFIPS = as.factor(GeoFIPS))
 two_year_post_stack <- readRDS("Data/two_year_post_stack.rds") %>%
-  mutate(Statefips = as.factor(Statefips))
+  mutate(Statefips = as.factor(Statefips), GeoFIPS = as.factor(GeoFIPS))
 three_year_post_stack <- readRDS("Data/three_year_post_stack.rds") %>%
-  mutate(Statefips = as.factor(Statefips))
+  mutate(Statefips = as.factor(Statefips), GeoFIPS = as.factor(GeoFIPS))
 
 # Define controls for each stack
 wind_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_wind", "new_mw_solar", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
@@ -65,6 +65,7 @@ wind_instantaneous_did50randomforest <- didcontDML(
   cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
   k = 3          
 )
+
 wind_instantaneous_did100randomforest <- didcontDML(
   y = instantaneous_stack$lnGDP_Per_Capita, 
   d = instantaneous_stack$new_mw_wind,
@@ -76,6 +77,7 @@ wind_instantaneous_did100randomforest <- didcontDML(
   cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
   k = 3          
 )
+
 wind_instantaneous_did200randomforest <- didcontDML(
   y = instantaneous_stack$lnGDP_Per_Capita, 
   d = instantaneous_stack$new_mw_wind,
@@ -87,6 +89,7 @@ wind_instantaneous_did200randomforest <- didcontDML(
   cluster = instantaneous_stack$GeoFIPS, # Cluster standard errors at the county level
   k = 3          
 )
+
 # Wind Instantaneous results
 wind_instantaneous_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW", "Random Forest 50 MW", "Random Forest 100 MW", "Random Forest 200 MW"),
