@@ -4,15 +4,19 @@ install.packages("causalweight")
 library(causalweight)
 
 # Load stacked data
-instantaneous_stack <- readRDS("Data/instantaneous_stack.rds")
-one_year_post_stack <- readRDS("Data/one_year_post_stack.rds")
-two_year_post_stack <- readRDS("Data/two_year_post_stack.rds")
-three_year_post_stack <- readRDS("Data/three_year_post_stack.rds")
+instantaneous_stack <- readRDS("Data/instantaneous_stack.rds") %>%
+  mutate(Statefips = as.factor(Statefips))
+one_year_post_stack <- readRDS("Data/one_year_post_stack.rds") %>%
+  mutate(Statefips = as.factor(Statefips))
+two_year_post_stack <- readRDS("Data/two_year_post_stack.rds") %>%
+  mutate(Statefips = as.factor(Statefips))
+three_year_post_stack <- readRDS("Data/three_year_post_stack.rds") %>%
+  mutate(Statefips = as.factor(Statefips))
 
 # Define controls for each stack
-wind_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_wind", "new_mw_solar", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil")
-solar_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_solar", "new_mw_wind", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil")
-gas_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_gas", "new_mw_wind", "new_mw_solar", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil")
+wind_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_wind", "new_mw_solar", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
+solar_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_solar", "new_mw_wind", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
+gas_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_gas", "new_mw_wind", "new_mw_solar", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
 
 # Instantaneous
 # Wind
