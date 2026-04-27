@@ -14,9 +14,48 @@ three_year_post_stack <- readRDS("Data/three_year_post_stack.rds") %>%
   mutate(Statefips = as.factor(Statefips), GeoFIPS = as.factor(GeoFIPS))
 
 # Define controls for each stack
-wind_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_wind", "new_mw_solar", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
-solar_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_solar", "new_mw_wind", "new_mw_gas", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
-gas_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", "cum_mw_history_gas", "lag_mw_gas", "new_mw_wind", "new_mw_solar", "pct_white", "pct_black", "pct_native", "pct_asian", "pct_hawaiian", "pct_other", "pct_poverty", "pct_assoc", "pct_bach", "pct_masters", "pct_farmer", "pct_elderly", "pct_under18", "pct_maleemploy", "pct_femaleemploy", "natamen", "dist_to_urban_25k", "dist_to_urban_100k", "dist_to_urban_250k", "dist_to_urban_500k", "dist_to_urban_1mil", "Statefips", "ref_year")
+wind_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", 
+                   "cum_mw_history_gas", "lag_mw_wind", 
+                   "new_mw_solar", "new_mw_gas", 
+                   "pct_white", "pct_black", 
+                   "pct_native", "pct_asian", 
+                   "pct_hawaiian", "pct_other", 
+                   "pct_poverty", "pct_assoc", 
+                   "pct_bach", "pct_masters", 
+                   "pct_farmer", "pct_elderly", 
+                   "pct_under18", "pct_maleemploy", 
+                   "pct_femaleemploy", "natamen", 
+                   "dist_to_urban_25k", "dist_to_urban_100k", 
+                   "dist_to_urban_250k", "dist_to_urban_500k", 
+                   "dist_to_urban_1mil", "Statefips", "ref_year")
+solar_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", 
+                    "cum_mw_history_gas", "lag_mw_solar", 
+                    "new_mw_wind", "new_mw_gas", 
+                    "pct_white", "pct_black", 
+                    "pct_native", "pct_asian", 
+                    "pct_hawaiian", "pct_other", 
+                    "pct_poverty", "pct_assoc", 
+                    "pct_bach", "pct_masters", 
+                    "pct_farmer", "pct_elderly", 
+                    "pct_under18", "pct_maleemploy", 
+                    "pct_femaleemploy", "natamen", 
+                    "dist_to_urban_25k", "dist_to_urban_100k", 
+                    "dist_to_urban_250k", "dist_to_urban_500k", 
+                    "dist_to_urban_1mil", "Statefips", "ref_year")
+gas_controls <- c("cum_mw_history_wind", "cum_mw_history_solar", 
+                  "cum_mw_history_gas", "lag_mw_gas", 
+                  "new_mw_wind", "new_mw_solar", 
+                  "pct_white", "pct_black", 
+                  "pct_native", "pct_asian", 
+                  "pct_hawaiian", "pct_other", 
+                  "pct_poverty", "pct_assoc", 
+                  "pct_bach", "pct_masters", 
+                  "pct_farmer", "pct_elderly", 
+                  "pct_under18", "pct_maleemploy", 
+                  "pct_femaleemploy", "natamen", 
+                  "dist_to_urban_25k", "dist_to_urban_100k", 
+                  "dist_to_urban_250k", "dist_to_urban_500k", 
+                  "dist_to_urban_1mil", "Statefips", "ref_year")
 
 # Instantaneous
 # Wind
@@ -68,7 +107,9 @@ wind_instantaneous_results <- data.frame(
               wind_instantaneous_did200lasso$pval)
 )
 
-rm(list = c("wind_instantaneous_did50lasso", "wind_instantaneous_did100lasso", "wind_instantaneous_did200lasso")) # memory management
+rm(list = c("wind_instantaneous_did50lasso", 
+            "wind_instantaneous_did100lasso", 
+            "wind_instantaneous_did200lasso")) # memory management
 
 # Solar
 solar_instantaneous_did50lasso <- didcontDML(
@@ -120,7 +161,9 @@ solar_instantaneous_results <- data.frame(
               solar_instantaneous_did200lasso$pval)
 )
 
-rm(list = c("solar_instantaneous_did50lasso", "solar_instantaneous_did100lasso", "solar_instantaneous_did200lasso")) # memory management
+rm(list = c("solar_instantaneous_did50lasso", 
+            "solar_instantaneous_did100lasso", 
+            "solar_instantaneous_did200lasso")) # memory management
 
 # Gas
 gas_instantaneous_did50lasso <- didcontDML(
@@ -134,7 +177,6 @@ gas_instantaneous_did50lasso <- didcontDML(
   cluster = instantaneous_stack$Statefips, # Cluster standard errors at the state level
   k = 3          
 )
-
 gas_instantaneous_did100lasso <- didcontDML(
   y = instantaneous_stack$lnGDP_Per_Capita, 
   d = instantaneous_stack$new_mw_gas,
@@ -173,7 +215,9 @@ gas_instantaneous_results <- data.frame(
               gas_instantaneous_did200lasso$pval)
 )
 
-rm(list = c("gas_instantaneous_did50lasso", "gas_instantaneous_did100lasso", "gas_instantaneous_did200lasso")) # memory management
+rm(list = c("gas_instantaneous_did50lasso", 
+            "gas_instantaneous_did100lasso", 
+            "gas_instantaneous_did200lasso")) # memory management
 
 # 1-year post ATET
 # Wind
@@ -231,7 +275,9 @@ wind_one_year_post_results <- data.frame(
               wind_one_year_post_did200lasso$pval)
 )
 
-rm(list = c("wind_one_year_post_did50lasso", "wind_one_year_post_did100lasso", "wind_one_year_post_did200lasso")) # memory management
+rm(list = c("wind_one_year_post_did50lasso", 
+            "wind_one_year_post_did100lasso", 
+            "wind_one_year_post_did200lasso")) # memory management
 
 # Solar
 solar_one_year_post_did50lasso <- didcontDML(
@@ -278,12 +324,20 @@ solar_one_year_post_did200lasso <- didcontDML(
 # Solar One-Year Post results
 solar_one_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(solar_one_year_post_did50lasso$ATET, solar_one_year_post_did100lasso$ATET, solar_one_year_post_did200lasso$ATET),
-  SE = c(solar_one_year_post_did50lasso$se, solar_one_year_post_did100lasso$se, solar_one_year_post_did200lasso$se),
-  P_Value = c(solar_one_year_post_did50lasso$pval, solar_one_year_post_did100lasso$pval, solar_one_year_post_did200lasso$pval)
+  ATET = c(solar_one_year_post_did50lasso$ATET, 
+           solar_one_year_post_did100lasso$ATET, 
+           solar_one_year_post_did200lasso$ATET),
+  SE = c(solar_one_year_post_did50lasso$se, 
+         solar_one_year_post_did100lasso$se, 
+         solar_one_year_post_did200lasso$se),
+  P_Value = c(solar_one_year_post_did50lasso$pval, 
+              solar_one_year_post_did100lasso$pval, 
+              solar_one_year_post_did200lasso$pval)
 )
 
-rm(list = c("solar_one_year_post_did50lasso", "solar_one_year_post_did100lasso", "solar_one_year_post_did200lasso")) # memory management
+rm(list = c("solar_one_year_post_did50lasso", 
+            "solar_one_year_post_did100lasso", 
+            "solar_one_year_post_did200lasso")) # memory management
 
 # Gas 
 gas_one_year_post_did50lasso <- didcontDML(
@@ -330,12 +384,20 @@ gas_one_year_post_did200lasso <- didcontDML(
 # Gas One-Year Post results
 gas_one_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(gas_one_year_post_did50lasso$ATET, gas_one_year_post_did100lasso$ATET, gas_one_year_post_did200lasso$ATET),
-  SE = c(gas_one_year_post_did50lasso$se, gas_one_year_post_did100lasso$se, gas_one_year_post_did200lasso$se),
-  P_Value = c(gas_one_year_post_did50lasso$pval, gas_one_year_post_did100lasso$pval, gas_one_year_post_did200lasso$pval)
+  ATET = c(gas_one_year_post_did50lasso$ATET, 
+           gas_one_year_post_did100lasso$ATET, 
+           gas_one_year_post_did200lasso$ATET),
+  SE = c(gas_one_year_post_did50lasso$se, 
+         gas_one_year_post_did100lasso$se, 
+         gas_one_year_post_did200lasso$se),
+  P_Value = c(gas_one_year_post_did50lasso$pval, 
+              gas_one_year_post_did100lasso$pval, 
+              gas_one_year_post_did200lasso$pval)
 )
 
-rm(list = c("gas_one_year_post_did50lasso", "gas_one_year_post_did100lasso", "gas_one_year_post_did200lasso")) # memory management
+rm(list = c("gas_one_year_post_did50lasso", 
+            "gas_one_year_post_did100lasso", 
+            "gas_one_year_post_did200lasso")) # memory management
 
 # 2-year post ATET
 # Wind
@@ -383,12 +445,20 @@ wind_two_year_post_did200lasso <- didcontDML(
 # Wind Two-Year Post results
 wind_two_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(wind_two_year_post_did50lasso$ATET, wind_two_year_post_did100lasso$ATET, wind_two_year_post_did200lasso$ATET),
-  SE = c(wind_two_year_post_did50lasso$se, wind_two_year_post_did100lasso$se, wind_two_year_post_did200lasso$se),
-  P_Value = c(wind_two_year_post_did50lasso$pval, wind_two_year_post_did100lasso$pval, wind_two_year_post_did200lasso$pval)
+  ATET = c(wind_two_year_post_did50lasso$ATET, 
+           wind_two_year_post_did100lasso$ATET, 
+           wind_two_year_post_did200lasso$ATET),
+  SE = c(wind_two_year_post_did50lasso$se, 
+         wind_two_year_post_did100lasso$se, 
+         wind_two_year_post_did200lasso$se),
+  P_Value = c(wind_two_year_post_did50lasso$pval, 
+              wind_two_year_post_did100lasso$pval, 
+              wind_two_year_post_did200lasso$pval)
 )
 
-rm(list = c("wind_two_year_post_did50lasso", "wind_two_year_post_did100lasso", "wind_two_year_post_did200lasso")) # memory management
+rm(list = c("wind_two_year_post_did50lasso", 
+            "wind_two_year_post_did100lasso", 
+            "wind_two_year_post_did200lasso")) # memory management
 
 # Solar
 solar_two_year_post_did50lasso <- didcontDML(
@@ -435,12 +505,20 @@ solar_two_year_post_did200lasso <- didcontDML(
 # Solar Two-Year Post results
 solar_two_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(solar_two_year_post_did50lasso$ATET, solar_two_year_post_did100lasso$ATET, solar_two_year_post_did200lasso$ATET),
-  SE = c(solar_two_year_post_did50lasso$se, solar_two_year_post_did100lasso$se, solar_two_year_post_did200lasso$se),
-  P_Value = c(solar_two_year_post_did50lasso$pval, solar_two_year_post_did100lasso$pval, solar_two_year_post_did200lasso$pval)
+  ATET = c(solar_two_year_post_did50lasso$ATET, 
+           solar_two_year_post_did100lasso$ATET, 
+           solar_two_year_post_did200lasso$ATET),
+  SE = c(solar_two_year_post_did50lasso$se, 
+         solar_two_year_post_did100lasso$se, 
+         solar_two_year_post_did200lasso$se),
+  P_Value = c(solar_two_year_post_did50lasso$pval, 
+              solar_two_year_post_did100lasso$pval, 
+              solar_two_year_post_did200lasso$pval)
 )
 
-rm(list = c("solar_two_year_post_did50lasso", "solar_two_year_post_did100lasso", "solar_two_year_post_did200lasso")) # memory management
+rm(list = c("solar_two_year_post_did50lasso", 
+            "solar_two_year_post_did100lasso", 
+            "solar_two_year_post_did200lasso")) # memory management
 
 # Gas
 gas_two_year_post_did50lasso <- didcontDML(
@@ -487,12 +565,20 @@ gas_two_year_post_did200lasso <- didcontDML(
 # Gas Two-Year Post results
 gas_two_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(gas_two_year_post_did50lasso$ATET, gas_two_year_post_did100lasso$ATET, gas_two_year_post_did200lasso$ATET),
-  SE = c(gas_two_year_post_did50lasso$se, gas_two_year_post_did100lasso$se, gas_two_year_post_did200lasso$se),
-  P_Value = c(gas_two_year_post_did50lasso$pval, gas_two_year_post_did100lasso$pval, gas_two_year_post_did200lasso$pval)
+  ATET = c(gas_two_year_post_did50lasso$ATET, 
+           gas_two_year_post_did100lasso$ATET, 
+           gas_two_year_post_did200lasso$ATET),
+  SE = c(gas_two_year_post_did50lasso$se, 
+         gas_two_year_post_did100lasso$se, 
+         gas_two_year_post_did200lasso$se),
+  P_Value = c(gas_two_year_post_did50lasso$pval, 
+              gas_two_year_post_did100lasso$pval, 
+              gas_two_year_post_did200lasso$pval)
 )
 
-rm(list = c("gas_two_year_post_did50lasso", "gas_two_year_post_did100lasso", "gas_two_year_post_did200lasso")) # memory management
+rm(list = c("gas_two_year_post_did50lasso", 
+            "gas_two_year_post_did100lasso", 
+            "gas_two_year_post_did200lasso")) # memory management
 
 # 3-year post ATET
 # Wind
@@ -540,12 +626,20 @@ wind_three_year_post_did200lasso <- didcontDML(
 # Wind Three-Year Post results
 wind_three_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(wind_three_year_post_did50lasso$ATET, wind_three_year_post_did100lasso$ATET, wind_three_year_post_did200lasso$ATET),
-  SE = c(wind_three_year_post_did50lasso$se, wind_three_year_post_did100lasso$se, wind_three_year_post_did200lasso$se),
-  P_Value = c(wind_three_year_post_did50lasso$pval, wind_three_year_post_did100lasso$pval, wind_three_year_post_did200lasso$pval)
+  ATET = c(wind_three_year_post_did50lasso$ATET, 
+           wind_three_year_post_did100lasso$ATET, 
+           wind_three_year_post_did200lasso$ATET),
+  SE = c(wind_three_year_post_did50lasso$se, 
+         wind_three_year_post_did100lasso$se, 
+         wind_three_year_post_did200lasso$se),
+  P_Value = c(wind_three_year_post_did50lasso$pval, 
+              wind_three_year_post_did100lasso$pval, 
+              wind_three_year_post_did200lasso$pval)
 )
 
-rm(list = c("wind_three_year_post_did50lasso", "wind_three_year_post_did100lasso", "wind_three_year_post_did200lasso")) # memory management
+rm(list = c("wind_three_year_post_did50lasso", 
+            "wind_three_year_post_did100lasso", 
+            "wind_three_year_post_did200lasso")) # memory management
 
 # Solar
 solar_three_year_post_did50lasso <- didcontDML(
@@ -592,12 +686,20 @@ solar_three_year_post_did200lasso <- didcontDML(
 # Solar Three-Year Post results
 solar_three_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(solar_three_year_post_did50lasso$ATET, solar_three_year_post_did100lasso$ATET, solar_three_year_post_did200lasso$ATET),
-  SE = c(solar_three_year_post_did50lasso$se, solar_three_year_post_did100lasso$se, solar_three_year_post_did200lasso$se),
-  P_Value = c(solar_three_year_post_did50lasso$pval, solar_three_year_post_did100lasso$pval, solar_three_year_post_did200lasso$pval)
+  ATET = c(solar_three_year_post_did50lasso$ATET, 
+           solar_three_year_post_did100lasso$ATET, 
+           solar_three_year_post_did200lasso$ATET),
+  SE = c(solar_three_year_post_did50lasso$se, 
+         solar_three_year_post_did100lasso$se, 
+         solar_three_year_post_did200lasso$se),
+  P_Value = c(solar_three_year_post_did50lasso$pval, 
+              solar_three_year_post_did100lasso$pval, 
+              solar_three_year_post_did200lasso$pval)
 )
 
-rm(list = c("solar_three_year_post_did50lasso", "solar_three_year_post_did100lasso", "solar_three_year_post_did200lasso"))
+rm(list = c("solar_three_year_post_did50lasso", 
+            "solar_three_year_post_did100lasso", 
+            "solar_three_year_post_did200lasso")) # memory management
 
 # Gas
 gas_three_year_post_did50lasso <- didcontDML(
@@ -643,12 +745,20 @@ gas_three_year_post_did200lasso <- didcontDML(
 # Gas Three-Year Post results
 gas_three_year_post_results <- data.frame(
   Model = c("Lasso 50 MW", "Lasso 100 MW", "Lasso 200 MW"),
-  ATET = c(gas_three_year_post_did50lasso$ATET, gas_three_year_post_did100lasso$ATET, gas_three_year_post_did200lasso$ATET),
-  SE = c(gas_three_year_post_did50lasso$se, gas_three_year_post_did100lasso$se, gas_three_year_post_did200lasso$se),
-  P_Value = c(gas_three_year_post_did50lasso$pval, gas_three_year_post_did100lasso$pval, gas_three_year_post_did200lasso$pval)
+  ATET = c(gas_three_year_post_did50lasso$ATET,        
+           gas_three_year_post_did100lasso$ATET, 
+           gas_three_year_post_did200lasso$ATET),
+  SE = c(gas_three_year_post_did50lasso$se, 
+         gas_three_year_post_did100lasso$se, 
+         gas_three_year_post_did200lasso$se),
+  P_Value = c(gas_three_year_post_did50lasso$pval, 
+              gas_three_year_post_did100lasso$pval, 
+              gas_three_year_post_did200lasso$pval)
 )
 
-rm(list = c("gas_three_year_post_did50lasso", "gas_three_year_post_did100lasso", "gas_three_year_post_did200lasso"))
+rm(list = c("gas_three_year_post_did50lasso", 
+            "gas_three_year_post_did100lasso", 
+            "gas_three_year_post_did200lasso")) # memory management
 
 # Results
 instantaneous_results <- rbind(wind_instantaneous_results, solar_instantaneous_results, gas_instantaneous_results)
