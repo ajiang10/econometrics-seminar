@@ -22,7 +22,7 @@ gdp_year_summary <- county_panel %>%
   ) 
 print(gdp_year_summary)
 
-gdp_county_summary <- county_gdp %>%
+gdp_county_summary <- county_panel %>%
   group_by(GeoName) %>%
   summarise(
     Mean_GDP = mean(Real_GDP, na.rm = TRUE),
@@ -130,7 +130,6 @@ plant_map <- ggplot() +
      geom_sf(data = power_plants %>%
   filter(primary_fuel %in% c("Wind", "Gas", "Solar", "Coal", "Hydro", "Nuclear")), pch = 1, aes(color = primary_fuel)) + # the power plants
      theme_void() +
-     labs(title = "US Power Plants 2002-2020") +
-     theme(plot.title = element_text(hjust = 1/2, family = "Linux Libertine"), legend.text = element_text(family = "Linux Libertine"))
-
+     labs(title = "US Power Plants 2002-2020", color = "Primary Fuel Types") +
+     theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2))
 plant_map
