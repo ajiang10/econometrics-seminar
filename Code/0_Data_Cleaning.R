@@ -17,18 +17,20 @@ geofips <- read_delim("Data/county_adjacency2010.txt", col_names = F) %>%
   rename("County_Name" = X1, "County_GEOID" = X2, "Adjacent_County_Name" = X3, "Adjacent_County_GEOID" = X4) %>%
   mutate(County_Name = replace(County_Name, County_GEOID == "35013", "Dona Ana County, NM")) %>%
   mutate(Adjacent_County_Name = replace(Adjacent_County_Name, Adjacent_County_GEOID == "35013", "Dona Ana County, NM")) %>%
-  fill(County_Name, County_GEOID, .direction = "down")
+  fill(County_Name, County_GEOID, .direction = "down") %>%
+  mutate(County_GEOID = ifelse(County_GEOID == "46113", "46102", County_GEOID),
+         County_Name = ifelse(County_GEOID == "46102", "Oglala Lakota County, SD", County_Name)) # Manual fix to correct Shannon County to become Oglala Lakota County in 2015
 
 # Save geofips adjacency data for later use
 write_csv(geofips, "Data/geofips_adjacency.csv")
 saveRDS(geofips, file = "Data/geofips_adjacency.rds")
 
 # US County Polygons
-us_counties <- counties(class = "sf", year = 2019)
+us_counties <- counties(class = "sf", year = 2012)
 us_counties <- st_transform(us_counties, crs = 4326) # For Intersecting with power plant coordinates
 us_countiesEPSG <- st_transform(us_counties, crs = 5070) # Albers Equal Area for accurate area calculations
 us_counties$areas <- st_area(us_countiesEPSG) # Calculate area in square meters
-us_counties$area_sqmi <- set_units(us_counties$areas, mi^2)
+us_counties$area_sqmi <- set_units(us_counties$areas, mi^2) # Convert to square miles
 
 # Turn County Name into County and State
 geofips_linking <- geofips %>%
@@ -55,7 +57,7 @@ points_with_county <- st_join(power_plants_points_sf, us_counties, join = st_int
 
 # Combine the reverse geocoded data with the original filtered data and perform necessary cleaning and transformationsss
 final_power_plant_data <- points_with_county %>%
-  filter(!STATEFP %in% c("02", "15", "66", "72")) %>% #Drop AK, HI, and territories
+  filter(!STATEFP %in% c("02", "15", "51", "66", "72")) %>% #Drop AK, HI, VA, and territories
   select(name, country_long, capacity_mw, primary_fuel, commissioning_year, GEOID) %>%
   rename(GeoFIPS = GEOID) %>%
   mutate(commissioning_year = floor(commissioning_year)) %>%
@@ -91,7 +93,7 @@ full_county_gdp_filtered <- full_county_gdp_data %>%
 full_county_linked <- full_county_gdp_filtered %>%
   left_join(geofips_linking, by = c("GeoFIPS" = "County_GEOID")) %>%
   select(GeoFIPS, GeoName, Year, Real_GDP, County, State) %>%
-  filter((!State %in% c("AK", "HI"))) %>%
+  filter((!State %in% c("AK", "HI", "VA"))) %>%
   drop_na(County, State) %>%
   mutate(State_Full_Name = state.name[match(State, state.abb)]) %>%
   mutate(State_Full_Name = ifelse(State == "DC", "District of Columbia", State_Full_Name)) %>%
