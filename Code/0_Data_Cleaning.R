@@ -9,7 +9,7 @@ library(units)
 # Set Census API Key (will need to obtain your own key and insert it here)
 # census_api_key("API_KEY_HERE", install = TRUE)
 
-# Load Data
+# Load Power Plant Data
 global_power_plant_data <- read_csv("Data/global_power_plant_database.csv")
 
 # Load the geofips adjacency data
@@ -57,7 +57,7 @@ points_with_county <- st_join(power_plants_points_sf, us_counties, join = st_int
 
 # Combine the reverse geocoded data with the original filtered data and perform necessary cleaning and transformationsss
 final_power_plant_data <- points_with_county %>%
-  filter(!STATEFP %in% c("02", "15", "51", "66", "72")) %>% #Drop AK, HI, VA, and territories
+  filter(!STATEFP %in% c("02", "15", "66", "72")) %>% #Drop AK, HI, and territories
   select(name, country_long, capacity_mw, primary_fuel, commissioning_year, GEOID) %>%
   rename(GeoFIPS = GEOID) %>%
   mutate(commissioning_year = floor(commissioning_year)) %>%
@@ -927,7 +927,8 @@ urban_distance_data <- bind_rows(us_counties2000, us_counties2010, us_counties20
 # Create final panel dataset by merging the urban distance data with the main dataset
 final_county_panel <- gdp_demo_nat %>%
   left_join(urban_distance_data, by = c("GeoFIPS", "Year")) %>%
-  fill(dist_to_urban_25k, dist_to_urban_100k, dist_to_urban_250k, dist_to_urban_500k, dist_to_urban_1mil, .direction = "down") # Fill in urban distance for years without data using the most recent available data for that county
+  fill(dist_to_urban_25k, dist_to_urban_100k, dist_to_urban_250k, dist_to_urban_500k, dist_to_urban_1mil, .direction = "down") %>% # Fill in urban distance for years without data using the most recent available data for that county
+  distinct(GeoFIPS, Year, .keep_all = TRUE) # Ensure no duplicate rows for any county-year combination
 
 # Save the final data to a new CSV file and RData file
 write_csv(final_county_panel, "Data/cleaned_county_panel.csv")
