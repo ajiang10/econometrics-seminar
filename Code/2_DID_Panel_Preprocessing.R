@@ -63,8 +63,10 @@ master_panel <- county_panel %>%
     cum_mw_history_gas   = cum_mw_gas_pre   + cumsum(lag_mw_gas)
   ) %>%
   ungroup() %>%
-  select(-c(cum_mw_wind_pre, cum_mw_solar_pre, cum_mw_gas_pre)) # Drop pre-period cumulative columns as they are now incorporated into the history variables
-
+  select(-c(cum_mw_wind_pre, cum_mw_solar_pre, cum_mw_gas_pre)) %>% # Drop pre-period cumulative columns as they are now incorporated into the history variables
+  mutate(cum_mw_wind = cum_mw_history_wind + new_mw_wind,
+         cum_mw_solar = cum_mw_history_solar + new_mw_solar,
+         cum_mw_gas = cum_mw_history_gas + new_mw_gas)
 # Save master panel
 saveRDS(master_panel, "Data/master_panel.rds")
 
