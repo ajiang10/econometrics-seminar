@@ -25,7 +25,7 @@ wind_tif_resampled <- resample(wind_tif, solar_tif, method = "bilinear") # Resam
 
 writeRaster(wind_tif_resampled, "Data/USA_wind-speed_100m_resampled.tif", overwrite = TRUE) # Save resampled wind raster for future use
 # Can reload it to save time in future runs
-# wind_tif <- rast("Data/USA_wind-speed_100m_resampled.tif")
+# wind_tif_resampled <- rast("Data/USA_wind-speed_100m_resampled.tif")
 
 # Calculate average solar and wind by county
 average_county_solar <- extract(solar_tif, us_counties, fun = mean, na.rm = TRUE, bind = TRUE)

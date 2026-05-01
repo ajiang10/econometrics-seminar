@@ -42,7 +42,8 @@ plot_gdp_year <- gdp_year_summary %>%
     y = "Mean Real GDP",
     title = "Mean Real GDP by Year"
   ) +
-  theme_minimal()
+  theme_minimal(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
 
 plot_gdp_year
 
@@ -73,8 +74,8 @@ plot1 <- power_plant_summary %>%
     y = "Total Power Plants",
     title = "Total Power Plants by Commissioning Year"
   ) +
-  theme_minimal() +
-  theme(text = element_text(family = "Linux Libertine"))
+  theme_minimal(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
 
 plot1
 
@@ -88,8 +89,8 @@ plot2 <- power_plant_fuel_summary %>%
     title = "Total Power Plants by Primary Fuel",
     color = "Primary Fuel Type"
   ) +
-  theme_minimal() +
-  theme(text = element_text(family = "Linux Libertine"))
+  theme_minimal(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
 
 plot2
 
@@ -102,8 +103,8 @@ plot3 <- power_plant_summary %>%
     y = "Total Capacity (MW)",
     title = "Total Power Plant Capacity by Commissioning Year"
   ) +
-  theme_minimal() +
-  theme(text = element_text(family = "Linux Libertine"))
+  theme_minimal(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
 
 plot3
 
@@ -117,10 +118,10 @@ plot4 <- power_plant_fuel_summary %>%
     title = "New Power Plant Capacity by Primary Fuel",
     color = "Primary Fuel Type"
   ) +
-  theme_minimal() +
-  theme(text = element_text(family = "Linux Libertine"))
+  theme_minimal(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
 
-plot4
+
 
 us_states <- states(cb = TRUE) %>%
   filter(!STUSPS %in% c("AK", "HI", "AS", "GU", "PR", "MP", "VI")) # Exclude non-continental states and territories
@@ -128,8 +129,61 @@ us_states <- states(cb = TRUE) %>%
 plant_map <- ggplot() +
      geom_sf(data = us_states, fill = NA, color = "gray45") + # borders of states
      geom_sf(data = power_plants %>%
-  filter(primary_fuel %in% c("Wind", "Gas", "Solar", "Coal", "Hydro", "Nuclear")), pch = 1, aes(color = primary_fuel)) + # the power plants
-     theme_void() +
+  filter(primary_fuel %in% c("Wind", "Gas", "Solar", "Coal", "Hydro", "Nuclear")), shape = 1, aes(color = primary_fuel)) + # the power plants
      labs(title = "US Power Plants 2002-2020", color = "Primary Fuel Types") +
-     theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2))
-plant_map
+  theme_void(base_size = 12) +
+  theme(text = element_text(family = "Linux Libertine"), plot.title = element_text(hjust = 1/2, face = "bold", size = 16))
+
+ggsave(
+  filename = "Output/power_plant_map.png",
+  plot = plant_map,
+  width = 10,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+
+ggsave(
+  filename = "Output/total_plants_by_year.png",
+  plot = plot1,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+
+ggsave(
+  filename = "Output/total_plants_by_fuel.png",
+  plot = plot2,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+
+ggsave(
+  filename = "Output/total_capacity_by_year.png",
+  plot = plot3,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+
+ggsave(
+  filename = "Output/total_capacity_by_fuel.png",
+  plot = plot4,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+
+ggsave(
+  filename = "Output/mean_gdp_by_year.png",
+  plot = plot_gdp_year,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
