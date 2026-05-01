@@ -1,6 +1,7 @@
 library(tidyverse)
 library(plm)
 library(fixest)
+library(carr)
 
 # Load panel
 master_panel <- readRDS("Data/master_panel.rds") %>%
@@ -22,13 +23,9 @@ fixest_FE_model_no_cluster <- feols(lnGDP_Per_Capita ~ cum_mw_wind + cum_mw_sola
 fixest_FE_model_state_cluster <- feols(lnGDP_Per_Capita ~ cum_mw_wind + cum_mw_solar + cum_mw_gas + pct_white + pct_black + pct_poverty + pct_assoc + pct_bach + pct_masters + pct_farmer + pct_elderly + pct_under18 + pct_maleemploy + pct_femaleemploy + dist_to_urban_100k + dist_to_urban_250k + dist_to_urban_500k | GeoFIPS + Year, 
                                 data = master_panel, 
                                 cluster = "Statefips")
-fixest_FE_model_county_cluster <- feols(lnGDP_Per_Capita ~ cum_mw_wind + cum_mw_solar + cum_mw_gas + pct_white + pct_black + pct_poverty + pct_assoc + pct_bach + pct_masters + pct_farmer + pct_elderly + pct_under18 + pct_maleemploy + pct_femaleemploy + dist_to_urban_100k + dist_to_urban_250k + dist_to_urban_500k | GeoFIPS + Year, 
-                                data = master_panel, 
-                                cluster = "GeoFIPS")
 
 summary(fixest_FE_model_no_cluster)
 summary(fixest_FE_model_state_cluster)
-summary(fixest_FE_model_county_cluster)
 
 # Lets check if a FE model is actually appropriate
 # Run pooled OLS

@@ -134,7 +134,7 @@ full_county_gdp_population_linked <- full_county_gdp_population_linked %>%
 
 # Clean and reshape personal income data
 full_personal_income_filtered <- full_county_personal_income_data %>%
-  filter(Countyfips != "000", Statefips != "72", Year >= 2002 & Year <= 2023) %>% # Exclude state-level data and Puertoo Rico
+  filter(Countyfips != "000", Statefips != "72", Year >= 2002 & Year <= 2023) %>% # Exclude state-level data and Puerto Rico
   filter(!GeoFIPS %in% c("09110", "09120", "09130", "09140", "09150", "09160", "09170", "09180", "09190")) %>% # Exclude CT planning regions
   select(GeoFIPS, Year, PerCapitaIncome)
 
