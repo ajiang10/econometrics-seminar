@@ -1,7 +1,6 @@
 library(tidyverse)
 library(plm)
 library(fixest)
-library(carr)
 
 # Load panel
 master_panel <- readRDS("Data/master_panel.rds") %>%
