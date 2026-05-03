@@ -59,8 +59,7 @@ fixest_FE_model_state_cluster_instrumented <- feols(lnGDP_Per_Capita ~ pct_white
                                        pct_elderly + pct_under18 + pct_maleemploy + pct_femaleemploy + 
                                        dist_to_urban_100k + dist_to_urban_250k + dist_to_urban_500k | GeoFIPS + Year |
                                        cum_mw_wind + cum_mw_solar + cum_mw_gas ~ dni_cost_interaction + wind_cost_interaction + pipeline_cost_interaction, 
-                                data = instrument_panel, 
-                                vcov = "cluster", 
+                                data = instrument_panel,  
                                 cluster = "Statefips")
 
 # Instrumented Spatial Models

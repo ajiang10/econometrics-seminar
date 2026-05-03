@@ -110,3 +110,12 @@ ggsave(
   dpi = 300
 )
 
+# Load panel
+inv_weighted_panel <- readRDS("Data/inv_weighted_panel.rds") %>% 
+  mutate(dist_to_urban_25k = as.numeric(dist_to_urban_25k),
+         dist_to_urban_100k = as.numeric(dist_to_urban_100k),
+         dist_to_urban_250k = as.numeric(dist_to_urban_250k),
+         dist_to_urban_500k = as.numeric(dist_to_urban_500k),
+         dist_to_urban_1mil = as.numeric(dist_to_urban_1mil))
+
+summary(inv_weighted_panel)

@@ -45,7 +45,6 @@ summary(RE_model)
 
 
 # Tests for which model is best
-plmtest(Pooled_model, type = "bp")
 pFtest(FE_model, Pooled_model)
 phtest(FE_model, RE_model)
 
