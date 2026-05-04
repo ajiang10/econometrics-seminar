@@ -7,7 +7,7 @@ Spring 2026
 ---
 The data can be found [here](https://drive.google.com/drive/folders/1OkYJOJPASWU-KBOh_FGt-hinXPCiM6nM?usp=sharing)!
 
-The paper can be found [here](https://drive.google.com/file/d/1onKY0FjnrrQF4RSdNXXuM31tyMH1aawo/view?usp=sharing)!
+The paper can be found [here](https://drive.google.com/file/d/15HAvr_E7zWHEgQa3G6T4MIxHBi8tvm41/view?usp=sharing)!
 
 ---
 ## Abstract:
