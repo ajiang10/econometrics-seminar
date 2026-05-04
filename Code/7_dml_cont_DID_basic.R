@@ -4,7 +4,7 @@ install.packages("causalweight")
 library(causalweight)
 
 ### IDEALLY ALL THIS WOULD BE RUN
-### Due to hardware limitations, I was only able to run wind instanteous DIDs with LASSO.
+### Due to hardware limitations, I was only able to run wind, solar, and gas instanteous DIDs at 50 and 100 MW with LASSO.
 
 # Load stacked data
 instantaneous_stack <- readRDS("Data/instantaneous_stack.rds") %>%
